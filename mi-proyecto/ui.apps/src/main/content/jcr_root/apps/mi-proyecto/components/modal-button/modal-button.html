@@ -1,0 +1,47 @@
+<!--/* Modal Button Component */-->
+<sly data-sly-use.model="com.adobe.cq.wcm.core.components.models.Component">
+
+    <sly data-sly-test="${properties.buttonText || wcmmode.edit}">
+
+        <div class="modal-button-component" data-component-id="${component.id}">
+
+            <!--/* Botón disparador */-->
+            <button type="button"
+                    class="modal-button__trigger"
+                    data-modal-target="modal-${component.id}"
+                    onclick="document.getElementById('modal-${component.id @ context='scriptString'}').style.display='flex'">
+                ${properties.buttonText || 'Abrir Modal'}
+            </button>
+
+            <!--/* Modal */-->
+            <div id="modal-${component.id}"
+                 class="modal-button__overlay"
+                 style="display:none;"
+                 onclick="if(event.target===this)this.style.display='none'">
+                <div class="modal-button__dialog" role="dialog" aria-modal="true"
+                     aria-labelledby="modal-title-${component.id}">
+
+                    <div class="modal-button__header">
+                        <h2 id="modal-title-${component.id}" class="modal-button__title">
+                            ${properties.modalTitle || 'Título del modal'}
+                        </h2>
+                        <button type="button"
+                                class="modal-button__close"
+                                aria-label="Cerrar"
+                                onclick="document.getElementById('modal-${component.id @ context='scriptString'}').style.display='none'">
+                            &times;
+                        </button>
+                    </div>
+
+                    <div class="modal-button__body">
+                        <p>${properties.modalContent || ''}</p>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </sly>
+
+</sly>

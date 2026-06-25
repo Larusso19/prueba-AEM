@@ -1,0 +1,9 @@
+<div class="card" data-sly-use.model="com.miempresa.core.models.card">
+    <sly data-sly-test="${model.imageUrl}">
+        <img src="card__image" alt="${model.imageUrl}" alt="${model.title}"/>
+    </sly>
+    <div class="card__body">
+        <h3 class="card__title">${model.title}</h3>
+        <p class="card__description">${model.description}</p>
+    </div>
+</div>
