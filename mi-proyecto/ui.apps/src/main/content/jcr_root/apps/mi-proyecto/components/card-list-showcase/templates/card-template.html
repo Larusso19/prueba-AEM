@@ -1,0 +1,23 @@
+<!--/* Template reutilizable para cada Card */-->
+<template data-sly-template.cardTemplate="${@ card, index}">
+    <article class="card card--${index @ context='attribute'}">
+
+        <sly data-sly-test="${card.cardImage}">
+            <img class="card__image"
+                 src="${card.cardImage @ context='uri'}"
+                 alt="${card.cardTitle @ context='attribute'}"/>
+        </sly>
+
+        <div class="card__body">
+            <h3 class="card__title">${card.cardTitle @ context='text'}</h3>
+            <div class="card__description">${card.cardDescription @ context='html'}</div>
+
+            <sly data-sly-test="${card.cardLink}">
+                <a class="card__link" href="${card.cardLink @ context='uri'}">
+                    ${'Leer más' @ i18n}
+                </a>
+            </sly>
+        </div>
+
+    </article>
+</template>

@@ -1,0 +1,26 @@
+<!--/* Card List Showcase */-->
+<sly data-sly-use.model="com.miempresa.core.models.CardListShowcase"
+     data-sly-use.templates="./templates/card-template.html"/>
+
+<section class="card-list-showcase ${model.toggleView ? 'card-list-showcase--list' : 'card-list-showcase--grid' @ context='attribute'}">
+
+    <sly data-sly-test="${model.sectionTitle}">
+        <h2 class="card-list-showcase__title">${model.sectionTitle @ context='text'}</h2>
+    </sly>
+
+    <sly data-sly-test="${model.cards.empty}">
+        <p class="card-list-showcase__empty">${'No hay tarjetas disponibles' @ i18n}</p>
+    </sly>
+
+    <sly data-sly-test="${!model.cards.empty}">
+        <ul class="card-list-showcase__list">
+            <li data-sly-list.card="${model.cards}"
+                class="card-list-showcase__item ${cardList.odd ? 'is-odd' : 'is-even' @ context='attribute'}"
+                data-index="${cardList.index @ context='attribute'}">
+                <sly data-sly-call="${templates.cardTemplate @ card=card, index=cardList.index}"/>
+            </li>
+        </ul>
+        <button class="card-list-showcase__btn">${'Ver todos' @ i18n}</button>
+    </sly>
+
+</section>
