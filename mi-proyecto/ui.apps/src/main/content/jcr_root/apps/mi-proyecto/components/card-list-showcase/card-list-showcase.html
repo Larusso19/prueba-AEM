@@ -2,6 +2,7 @@
      data-sly-use.templates="./templates/card-template.html"/>
 
 <section class="card-list-showcase ${model.toggleView ? 'card-list-showcase--list' : 'card-list-showcase--grid' @ context='attribute'}"
+         data-view="${model.toggleView ? 'list' : 'grid' @ context='attribute'}"
          data-component="card-list-showcase"
          data-servlet-path="${resource.path @ context='attribute'}.holafuturo.json">
 
@@ -21,17 +22,18 @@
     </sly>
 
     <sly data-sly-test="${!model.cards.empty}">
-        <ul class="card-list-showcase__list">
-            <li data-sly-list.card="${model.cards}"
-                class="card-list-showcase__item ${cardList.odd ? 'is-odd' : 'is-even' @ context='attribute'}"
-                data-index="${cardList.index @ context='attribute'}"
-                data-count="${cardList.count @ context='attribute'}"
-                data-first="${cardList.first @ context='attribute'}"
-                data-last="${cardList.last @ context='attribute'}"
-                data-even="${cardList.even @ context='attribute'}">
-                <sly data-sly-call="${templates.cardTemplate @ card=card, index=cardList.index}"/>
-            </li>
-        </ul>
+       <ul class="card-list-showcase__list">
+    <sly data-sly-list.card="${model.cards}">
+        <li class="card-list-showcase__item ${cardList.odd ? 'is-odd' : 'is-even' @ context='attribute'}"
+            data-index="${cardList.index @ context='attribute'}"
+            data-count="${cardList.count @ context='attribute'}"
+            data-first="${cardList.first @ context='attribute'}"
+            data-last="${cardList.last @ context='attribute'}"
+            data-even="${cardList.even @ context='attribute'}">
+            <sly data-sly-call="${templates.cardTemplate @ card=card, index=cardList.index}"/>
+        </li>
+    </sly>
+</ul>
         <button class="card-list-showcase__btn"
                 data-action="load-all">
             ${'Ver todos' @ i18n}

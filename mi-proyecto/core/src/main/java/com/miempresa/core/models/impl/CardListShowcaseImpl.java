@@ -5,7 +5,6 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.DefaultInjectionStrategy;
 import org.apache.sling.models.annotations.Model;
-import org.apache.sling.models.annotations.injectorspecific.ChildResource;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 
@@ -21,28 +20,22 @@ import java.util.List;
 )
 public class CardListShowcaseImpl implements CardListShowcase {
 
+    @Self
+    private Resource resource;
+
     @ValueMapValue
     private String sectionTitle;
 
     @ValueMapValue
     private boolean toggleView;
 
-    @Self
-    private Resource resource;
-
-    @ChildResource(name = "cards")
-    private Resource cardsResource;
-
     private final List<CardItem> cardItems = new ArrayList<>();
 
     @PostConstruct
-    private void init() {
-        Resource cards = cardsResource != null
-            ? cardsResource
-            : (resource != null ? resource.getChild("cards") : null);
-
-        if (cards != null) {
-            for (Resource cardResource : cards.getChildren()) {
+    protected void init() {
+        Resource cardsNode = resource.getChild("cards");
+        if (cardsNode != null) {
+            for (Resource cardResource : cardsNode.getChildren()) {
                 cardItems.add(new CardItemImpl(cardResource));
             }
         }
@@ -64,11 +57,11 @@ public class CardListShowcaseImpl implements CardListShowcase {
         private final String cardLink;
 
         public CardItemImpl(Resource resource) {
-            ValueMap vm = resource.getValueMap();
-            this.cardTitle       = vm.get("cardTitle", String.class);
+            ValueMap vm          = resource.getValueMap();
+            this.cardTitle       = vm.get("cardTitle",       String.class);
             this.cardDescription = vm.get("cardDescription", String.class);
-            this.cardImage       = vm.get("cardImage", String.class);
-            this.cardLink        = vm.get("cardLink", String.class);
+            this.cardImage       = vm.get("cardImage",       String.class);
+            this.cardLink        = vm.get("cardLink",        String.class);
         }
 
         @Override public String getCardTitle()       { return cardTitle; }
