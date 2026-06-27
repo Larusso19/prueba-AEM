@@ -2,9 +2,11 @@ package com.miempresa.core.models.impl;
 
 import com.miempresa.core.models.CardListShowcase;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.DefaultInjectionStrategy;
 import org.apache.sling.models.annotations.Model;
-import org.apache.sling.models.annotations.injectorspecific.SlingObject;
+import org.apache.sling.models.annotations.injectorspecific.ChildResource;
+import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 
 import javax.annotation.PostConstruct;
@@ -25,16 +27,22 @@ public class CardListShowcaseImpl implements CardListShowcase {
     @ValueMapValue
     private boolean toggleView;
 
-    @SlingObject
+    @Self
     private Resource resource;
 
-    private List<CardItem> cardItems = new ArrayList<>();
+    @ChildResource(name = "cards")
+    private Resource cardsResource;
+
+    private final List<CardItem> cardItems = new ArrayList<>();
 
     @PostConstruct
-    protected void init() {
-        Resource cardsNode = resource.getChild("cards");
-        if (cardsNode != null) {
-            for (Resource cardResource : cardsNode.getChildren()) {
+    private void init() {
+        Resource cards = cardsResource != null
+            ? cardsResource
+            : (resource != null ? resource.getChild("cards") : null);
+
+        if (cards != null) {
+            for (Resource cardResource : cards.getChildren()) {
                 cardItems.add(new CardItemImpl(cardResource));
             }
         }
@@ -49,7 +57,6 @@ public class CardListShowcaseImpl implements CardListShowcase {
     @Override
     public List<CardItem> getCards() { return cardItems; }
 
-    // Inner class POJO
     public static class CardItemImpl implements CardItem {
         private final String cardTitle;
         private final String cardDescription;
@@ -57,10 +64,11 @@ public class CardListShowcaseImpl implements CardListShowcase {
         private final String cardLink;
 
         public CardItemImpl(Resource resource) {
-            this.cardTitle       = resource.getValueMap().get("cardTitle", String.class);
-            this.cardDescription = resource.getValueMap().get("cardDescription", String.class);
-            this.cardImage       = resource.getValueMap().get("cardImage", String.class);
-            this.cardLink        = resource.getValueMap().get("cardLink", String.class);
+            ValueMap vm = resource.getValueMap();
+            this.cardTitle       = vm.get("cardTitle", String.class);
+            this.cardDescription = vm.get("cardDescription", String.class);
+            this.cardImage       = vm.get("cardImage", String.class);
+            this.cardLink        = vm.get("cardLink", String.class);
         }
 
         @Override public String getCardTitle()       { return cardTitle; }

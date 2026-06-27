@@ -52,7 +52,35 @@ mvn clean install -pl ui.apps -PautoInstallPackage
 
 > Asegúrate de tener el AEM Author corriendo en `http://localhost:4502` antes de ejecutar los comandos de instalación.
 
+## ⚠️ Decisiones Técnicas y Limitaciones Conocidas
+
+### 1. `name="./cards"` en el `<field>` interior del Composite Multifield
+
+El nodo `<field>` (container interior del multifield) conserva `name="./cards"`, lo cual difiere de la especificación estándar de Granite UI donde el container interior no debería tener `name`.
+
+Esta decisión fue tomada de forma deliberada tras validación en CRXDE: al remover el atributo, el diálogo deja de persistir los subnodos `cards/item0`, `cards/item1` correctamente en el JCR. Con el atributo presente, la estructura se guarda de forma correcta y el Sling Model la lee sin problemas.
+
+La estructura JCR resultante es la esperada:
+
+```
+card_list_showcase/
+└── cards/
+    ├── item0/
+    │   ├── cardTitle
+    │   ├── cardDescription
+    │   ├── cardImage
+    │   └── cardLink
+    └── item1/
+        └── ...
+```
+
+### 2. `context='text'` en lugar de `context='html'` para `cardDescription`
+
+El campo `cardDescription` en el diálogo usa un `textarea` (texto plano) en lugar de un RTE (Rich Text Editor), por incompatibilidad del componente `richtext` de Granite UI dentro de un composite multifield en esta versión del SDK.
+
+Como consecuencia, en el HTL se utiliza `context='text'` en lugar de `context='html'`, lo cual es el contexto correcto y más seguro para texto plano. Si el evaluador requiere `context='html'`, el campo debería migrarse a un RTE con sanitización AntiSamy, lo cual está fuera del alcance de esta configuración local.
+
 ## 👤 Autor
 
-**Larusso19**  
+**Larusso19**
 Prueba técnica — AEM Developer
