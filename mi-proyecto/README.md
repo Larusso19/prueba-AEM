@@ -17,9 +17,9 @@ Repositorio desarrollado como parte de una prueba técnica para Adobe AEM as a C
 ## 📁 Estructura del Proyecto
 
 ```
-prueba-AEM/
+mi-proyecto/
 ├── core/               # Sling Models, Servlets (Java)
-├── ui.apps/            # Componentes HTL, definiciones JCR
+├── ui.apps/            # Componentes HTL, definiciones JCR, i18n
 ├── ui.content/         # Contenido de ejemplo, Templates, XF
 ├── ui.config/          # Configuraciones OSGi
 ├── ui.frontend/        # SCSS, webpack, assets
@@ -28,14 +28,77 @@ prueba-AEM/
 
 ## 🧩 Componente Principal: `card-list-showcase`
 
-Componente personalizado que hereda de un contenedor de AEM Core Components v3, diseñado para demostrar dominio de:
+Componente personalizado que hereda de `wcm/foundation/components/responsivegrid`, diseñado para demostrar dominio de:
 
-- **HTL / Sightly** — `data-sly-use`, `data-sly-list`, `data-sly-repeat`, `data-sly-test`, `data-sly-template`, `data-sly-call`
+- **HTL / Sightly** — `data-sly-use`, `data-sly-list`, `data-sly-test`, `data-sly-template`, `data-sly-call`
 - **Contextos de escape XSS** — `@context='text'`, `@context='html'`, `@context='uri'`, `@context='attribute'`
-- **i18n** — `${'Texto' @ i18n}`
-- **Sling Models** — interfaz + implementación, `@ChildResource`, procesamiento de Multifield
-- **Servlet OSGi R7** — registrado por `resourceType` bajo `/bin/holafuturo/`
-- **Editable Templates y Experience Fragments** bajo `/conf/`
+- **i18n** — `${'Texto' @ i18n}` con diccionarios EN/ES en `/apps/mi-proyecto/i18n/`
+- **Sling Models** — interfaz + implementación con `@Self`, `@ValueMapValue`, `@ChildResource`
+- **Servlet OSGi R7** — registrado por `resourceType` con selector `holafuturo` y extensión `json`
+- **Variables de loop HTL** — `index`, `count`, `first`, `last`, `odd`, `even` demostradas explícitamente
+- **Editable Templates** en `/conf/mi-proyecto/`
+- **Experience Fragment** — `NexaCloud Services` bajo `/content/experience-fragments/mi-proyecto/`
+
+### Estructura del diálogo (Multifield composite)
+
+```
+_cq_dialog/
+└── .content.xml
+    └── multifield: ./cards
+        └── items:
+            ├── cardTitle       (textfield)
+            ├── cardDescription (textarea)
+            ├── cardImage       (pathfield → /content/dam)
+            └── cardLink        (pathfield)
+```
+
+### Endpoint del Servlet
+
+```
+GET /content/mi-proyecto/us/es/en.holafuturo.json
+→ {"status":"ok","message":"Hola Futuro!","cards":[]}
+```
+
+## 🌐 Internacionalización (i18n)
+
+El componente soporta inglés y español mediante diccionarios registrados en:
+
+```
+/apps/mi-proyecto/i18n/
+├── en.json   # English translations
+└── es.json   # Spanish (keys = values)
+```
+
+Textos traducidos: `Ver todos`, `Vista: Cuadrícula`, `Vista: Lista`, `No hay tarjetas disponibles`, `Leer más`.
+
+## 🎨 Frontend y Estilos
+
+El proyecto utiliza webpack + SCSS con arquitectura BEM:
+
+- `_card-list-showcase.scss` — estilos del componente principal (grid/lista, modal, botón)
+- `_teaser.scss` — hero con imagen de fondo y texto superpuesto (estilo `cmp-teaser--hero`)
+- `_navigation.scss` — navegación horizontal corporativa con dropdown
+- `_languagenavigation.scss` — selector de idioma EN/ES fixed en header
+- `_text.scss` — sección "Sobre nosotros" centrada con acento visual
+- `_base.scss` — variables y reset global
+
+### Paleta corporativa (NexaCloud)
+
+| Variable | Color |
+|---|---|
+| Primary | `#1a3a5c` |
+| Accent | `#2d7dd2` |
+| Background | `#f4f6f9` |
+| Text muted | `#5a6a7e` |
+
+## 📄 Páginas creadas
+
+| URL | Idioma | Descripción |
+|---|---|---|
+| `/content/mi-proyecto/us/es/en.html` | Español | Página principal NexaCloud |
+| `/content/mi-proyecto/us/en/en1.html` | Inglés | Versión en inglés |
+
+Ambas páginas incluyen: Hero Teaser, sección "Sobre NexaCloud" y Card List Showcase con 6 servicios.
 
 ## 🚀 Compilación y Despliegue Local
 
@@ -52,13 +115,15 @@ mvn clean install -pl ui.apps -PautoInstallPackage
 
 > Asegúrate de tener el AEM Author corriendo en `http://localhost:4502` antes de ejecutar los comandos de instalación.
 
+> **Nota:** El módulo `ui.tests` está comentado en el `pom.xml` raíz para evitar errores de permisos de Windows con `node_modules` en entorno local. Los Cypress tests están diseñados para ejecutarse en el pipeline de Cloud Manager, no localmente.
+
 ## ⚠️ Decisiones Técnicas y Limitaciones Conocidas
 
 ### 1. `name="./cards"` en el `<field>` interior del Composite Multifield
 
 El nodo `<field>` (container interior del multifield) conserva `name="./cards"`, lo cual difiere de la especificación estándar de Granite UI donde el container interior no debería tener `name`.
 
-Esta decisión fue tomada de forma deliberada tras validación en CRXDE: al remover el atributo, el diálogo deja de persistir los subnodos `cards/item0`, `cards/item1` correctamente en el JCR. Con el atributo presente, la estructura se guarda de forma correcta y el Sling Model la lee sin problemas.
+Esta decisión fue tomada de forma deliberada tras validación en CRXDE: al remover el atributo, el diálogo deja de persistir los subnodos `cards/item0`, `cards/item1` correctamente en el JCR. Con el atributo presente, la estructura se guarda correctamente y el Sling Model la lee sin problemas.
 
 La estructura JCR resultante es la esperada:
 
@@ -76,9 +141,28 @@ card_list_showcase/
 
 ### 2. `context='text'` en lugar de `context='html'` para `cardDescription`
 
-El campo `cardDescription` en el diálogo usa un `textarea` (texto plano) en lugar de un RTE (Rich Text Editor), por incompatibilidad del componente `richtext` de Granite UI dentro de un composite multifield en esta versión del SDK.
+El campo `cardDescription` usa un `textarea` (texto plano) en lugar de un RTE (Rich Text Editor), por incompatibilidad del componente `richtext` de Granite UI dentro de un composite multifield en esta versión del SDK.
 
-Como consecuencia, en el HTL se utiliza `context='text'` en lugar de `context='html'`, lo cual es el contexto correcto y más seguro para texto plano. Si el evaluador requiere `context='html'`, el campo debería migrarse a un RTE con sanitización AntiSamy, lo cual está fuera del alcance de esta configuración local.
+Como consecuencia, en el HTL se utiliza `context='text'` en lugar de `context='html'`, lo cual es el contexto correcto y más seguro para texto plano. Si el evaluador requiere `context='html'`, el campo debería migrarse a un RTE con sanitización AntiSamy.
+
+### 3. `data-sly-list` en `<sly>` wrapper en lugar de en el `<li>`
+
+El multifield genera subnodos bajo `cards/item0`, `cards/item1`, etc. Al colocar `data-sly-list` directamente en el `<li>`, AEM agrupaba todos los items dentro de un solo `<li>`. La solución fue envolver el `<li>` en un `<sly data-sly-list>`, lo cual itera correctamente generando un `<li>` por cada card.
+
+### 4. `CardListServlet` — registro por path vs resourceType
+
+El servlet usa `@SlingServletPaths(value = "/bin/holafuturo")` para cumplir 
+el requisito literal de la prueba. En un proyecto AEMaaCS real se usaría 
+`@SlingServletResourceTypes` ya que `sling.servlet.paths` está bloqueado 
+por defecto en AEM as a Cloud Service por razones de seguridad.
+
+## 📸 Vista previa
+
+### Español
+![NexaCloud ES](docs/nexacloud-es.png)
+
+### Inglés
+![NexaCloud EN](docs/nexacloud-en.png)
 
 ## 👤 Autor
 

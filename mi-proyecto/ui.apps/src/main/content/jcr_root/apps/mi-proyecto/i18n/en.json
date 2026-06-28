@@ -1,0 +1,9 @@
+{
+  "jcr:primaryType": "mix:language",
+  "jcr:language": "en",
+  "Ver todos": "View all",
+  "Vista: Cuadrícula": "Grid View",
+  "Vista: Lista": "List View",
+  "No hay tarjetas disponibles": "No cards available",
+  "Leer más": "Read more"
+}

@@ -2,9 +2,8 @@ package com.miempresa.core.servlets;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
-import org.apache.sling.api.servlets.HttpConstants;
-import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
-import org.apache.sling.servlets.annotations.SlingServletResourceTypes;
+import org.apache.sling.api.servlets.SlingAllMethodsServlet;
+import org.apache.sling.servlets.annotations.SlingServletPaths;
 import org.osgi.service.component.annotations.Component;
 
 import javax.servlet.Servlet;
@@ -12,13 +11,8 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 
 @Component(service = Servlet.class)
-@SlingServletResourceTypes(
-    resourceTypes = "mi-proyecto/components/card-list-showcase",
-    selectors    = "holafuturo",
-    extensions   = "json",
-    methods      = HttpConstants.METHOD_GET
-)
-public class CardListServlet extends SlingSafeMethodsServlet {
+@SlingServletPaths(value = "/bin/holafuturo")
+public class CardListServlet extends SlingAllMethodsServlet {
 
     private static final long serialVersionUID = 1L;
 
