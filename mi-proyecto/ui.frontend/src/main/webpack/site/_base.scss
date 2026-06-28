@@ -1,18 +1,12 @@
 //== Base
-
 html,
 body {
     margin: 0;
     font-size:   $font-size;
     font-family: $font-family;
     line-height: $font-height;
-    color:       $color-foreground;
-    background:  $color-background;
-
-    @media (prefers-color-scheme: dark) {
-        color:       $color-foreground-dark;
-        background:  $color-background-dark;
-    }
+    color:       #1a2636;
+    background:  #f4f6f9;
 }
 
 
@@ -29,7 +23,7 @@ input,
 optgroup,
 select,
 modal-button{
-color:aquamarine
+color:rgb(24, 26, 26)
 }
 textarea {
     font: inherit;
