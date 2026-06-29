@@ -34,7 +34,7 @@ Componente personalizado que hereda de `wcm/foundation/components/responsivegrid
 - **Contextos de escape XSS** — `@context='text'`, `@context='html'`, `@context='uri'`, `@context='attribute'`
 - **i18n** — `${'Texto' @ i18n}` con diccionarios EN/ES en `/apps/mi-proyecto/i18n/`
 - **Sling Models** — interfaz + implementación con `@Self`, `@ValueMapValue`, `@ChildResource`
-- **Servlet OSGi R7** — registrado por `resourceType` con selector `holafuturo` y extensión `json`
+- **Servlet OSGi R7** — registrado por path `/bin/holafuturo`
 - **Variables de loop HTL** — `index`, `count`, `first`, `last`, `odd`, `even` demostradas explícitamente
 - **Editable Templates** en `/conf/mi-proyecto/`
 - **Experience Fragment** — `NexaCloud Services` bajo `/content/experience-fragments/mi-proyecto/`
@@ -55,7 +55,7 @@ _cq_dialog/
 ### Endpoint del Servlet
 
 ```
-GET /content/mi-proyecto/us/es/en.holafuturo.json
+GET http://localhost:4502/bin/holafuturo
 → {"status":"ok","message":"Hola Futuro!","cards":[]}
 ```
 
@@ -100,7 +100,58 @@ El proyecto utiliza webpack + SCSS con arquitectura BEM:
 
 Ambas páginas incluyen: Hero Teaser, sección "Sobre NexaCloud" y Card List Showcase con 6 servicios.
 
-## 🚀 Compilación y Despliegue Local
+## 🖥️ Requisitos Previos
+
+Antes de compilar y desplegar el proyecto asegúrate de tener instalado y configurado lo siguiente:
+
+1. **Java 21** — [Descargar](https://adoptium.net/)
+2. **Maven 3.9+** — [Descargar](https://maven.apache.org/download.cgi)
+3. **Node.js 18+** — [Descargar](https://nodejs.org/)
+4. **AEM SDK** — Quickstart `.jar` de AEMaaCS (proporcionado por Adobe)
+
+## ▶️ Cómo correr el proyecto
+
+### 1. Iniciar AEM Author local
+
+```bash
+# Crear una carpeta para AEM y copiar el Quickstart .jar ahí
+mkdir aem-author && cd aem-author
+
+# Iniciar AEM en modo Author en el puerto 4502
+java -jar aem-quickstart.jar -r author -p 4502
+```
+
+Espera a que AEM inicie completamente. Puedes verificarlo accediendo a:
+```
+http://localhost:4502
+```
+Credenciales por defecto: `admin / admin`
+
+### 2. Instalar el paquete de contenido (opción rápida)
+
+Si prefieres no compilar desde el código fuente, instala directamente el `.zip` adjunto:
+
+1. Ve a `http://localhost:4502/crx/packmgr/index.jsp`
+2. Clic en **Upload Package** y selecciona el archivo `.zip`
+3. Una vez subido, clic en **Install**
+4. Accede a las páginas en:
+   - Español: `http://localhost:4502/content/mi-proyecto/us/es/en.html`
+   - Inglés: `http://localhost:4502/content/mi-proyecto/us/en/en1.html`
+
+### 3. Compilar e instalar desde el código fuente
+
+```bash
+# Clonar el repositorio
+git clone <url-del-repositorio>
+cd mi-proyecto
+
+# Compilar e instalar todo el proyecto
+mvn clean install -PautoInstallSinglePackage
+```
+
+> Asegúrate de que AEM Author esté corriendo en `http://localhost:4502` antes de ejecutar el comando.
+
+## 🚀 Comandos de Compilación
 
 ```bash
 # Compilar e instalar todo el proyecto
@@ -112,8 +163,6 @@ mvn clean install -pl core
 # Solo ui.apps
 mvn clean install -pl ui.apps -PautoInstallPackage
 ```
-
-> Asegúrate de tener el AEM Author corriendo en `http://localhost:4502` antes de ejecutar los comandos de instalación.
 
 > **Nota:** El módulo `ui.tests` está comentado en el `pom.xml` raíz para evitar errores de permisos de Windows con `node_modules` en entorno local. Los Cypress tests están diseñados para ejecutarse en el pipeline de Cloud Manager, no localmente.
 
@@ -151,10 +200,7 @@ El multifield genera subnodos bajo `cards/item0`, `cards/item1`, etc. Al colocar
 
 ### 4. `CardListServlet` — registro por path vs resourceType
 
-El servlet usa `@SlingServletPaths(value = "/bin/holafuturo")` para cumplir 
-el requisito literal de la prueba. En un proyecto AEMaaCS real se usaría 
-`@SlingServletResourceTypes` ya que `sling.servlet.paths` está bloqueado 
-por defecto en AEM as a Cloud Service por razones de seguridad.
+El servlet usa `@SlingServletPaths(value = "/bin/holafuturo")` para cumplir el requisito literal de la prueba. En un proyecto AEMaaCS real se usaría `@SlingServletResourceTypes` ya que `sling.servlet.paths` está bloqueado por defecto en AEM as a Cloud Service por razones de seguridad.
 
 ## 📸 Vista previa
 
@@ -166,5 +212,5 @@ por defecto en AEM as a Cloud Service por razones de seguridad.
 
 ## 👤 Autor
 
-**Larusso19**
+**Fernando**
 Prueba técnica — AEM Developer
