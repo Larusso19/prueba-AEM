@@ -4,7 +4,7 @@
 <section class="card-list-showcase ${model.toggleView ? 'card-list-showcase--list' : 'card-list-showcase--grid' @ context='attribute'}"
          data-view="${model.toggleView ? 'list' : 'grid' @ context='attribute'}"
          data-component="card-list-showcase"
-         data-servlet-path="${resource.path @ context='attribute'}.holafuturo.json">
+         data-servlet-path="/bin/holafuturo">
 
     <sly data-sly-test="${model.sectionTitle}">
         <h2 class="card-list-showcase__title">${model.sectionTitle @ context='text'}</h2>
